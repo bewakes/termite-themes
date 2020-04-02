@@ -3,25 +3,50 @@
 import re
 import os
 import subprocess
+import random
+import configparser
 import argparse
+
+DEFAULT_CONFIG_PATH = os.path.expanduser('~/.config/termite/config')
+DEFAULT_THEMES_DIR = os.path.expanduser('~/.config/termite/base16-termite/themes')
+
+CONFIG_PATH = os.path.expanduser('~/.config/termite-themes')
+
+
+def get_termite_themes_config():
+    try:
+        config = configparser.ConfigParser()
+        config.read(CONFIG_PATH)
+        return {**config['default']}
+    except Exception:
+        print(f'WARNING: Could not read config at {CONFIG_PATH}. It is either missing or invalid')
+        return {
+            'config_path': DEFAULT_CONFIG_PATH,
+            'themes_dir': DEFAULT_THEMES_DIR,
+        }
+
+
+DEFAULT_TERMITE_THEMES_CONFIG = get_termite_themes_config()
 
 parser = argparse.ArgumentParser(description='Parser for termite-theme-switcher')
 
 parser.add_argument('--config-path', type=str,
-                    default=os.path.expanduser('~/.config/termite/config'),
+                    default=DEFAULT_TERMITE_THEMES_CONFIG['config_path'],
                     help='Termite config directory')
 
 parser.add_argument('--themes-dir', type=str,
-                    default=os.path.expanduser('~/.config/termite/base16-termite/themes'),
+                    default=DEFAULT_TERMITE_THEMES_CONFIG['themes_dir'],
                     help='Termite themes directory')
 
 parser.add_argument('--list', action='store_true',
                     help='List available themes')
 
+parser.add_argument('--random', action='store_true',
+                    help='Switch to random theme present in themes directory')
+
 parser.add_argument('--switch-to', type=str, nargs=1,
                     help='The theme name to switch to')
 
-# https://github.com/khamer/base16-termite
 
 def handle_exception(func):
     def wrapped(*args, **kwargs):
@@ -68,10 +93,8 @@ def parse_config(config_path: str) -> ([str], [str]):
     return before_lines, after_lines
 
 
-
-def switch_theme(args):
+def switch_theme(args, theme):
     themes = read_themes_list(args.themes_dir)
-    theme = args.switch_to[0]
     if theme not in themes:
         raise Exception(f'Theme "{theme}" does not exist in themes dir "{args.themes_dir}"')
     before_colors, after_colors = parse_config(args.config_path)
@@ -98,10 +121,16 @@ def main():
         themes = read_themes_list(args.themes_dir)
         print(f'{title}\n{"=" * len(title)}')
         print('\n'.join(themes))
+    elif args.random:
+        themes = read_themes_list(args.themes_dir)
+        random_theme = random.choice(themes)
+        print('Applying random theme:', random_theme)
+        switch_theme(args, random_theme)
     elif args.switch_to:
-        switch_theme(args)
+        theme = args.switch_to[0]
+        switch_theme(args, theme)
     else:
-        print('Nothing to do')
+        print('Nothing to do!!')
 
 
 if __name__ == '__main__':
