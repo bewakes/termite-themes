@@ -34,9 +34,18 @@ fi
 
 config_path=~/.config/termite-themes
 echo Writing config to "$config_path"
-echo [default] >> $config_path
+echo [default] > $config_path
 echo config_path = $DEFAULT_CONFIG_PATH >> $config_path
 echo themes_dir = $DEFAULT_THEMES_DIR >> $config_path
 
-# TODO: install on path
-echo Done!!
+path=/home/`whoami`/.local/bin
+echo Searching if "$path" exists in path
+if [[ -z `echo $PATH | grep $path` ]]; then
+    echo Intended to install executable at $path but is not listed in PATH.
+    echo You might want to copy/link the 'termite-themes.py' into your desired path.
+else
+    ln -s `pwd`/termite-themes.py $path/termite-themes
+    echo Created a symlink named "termite-themes" at your path.
+    echo You can now just use 'termite-themes' instead of specifying full path to 'termite-themes.py' file.
+fi
+echo Setup Complete!!

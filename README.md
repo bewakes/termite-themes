@@ -15,8 +15,8 @@ This automatically downloads [base16-termite](https://github.com/khamer/base16-t
 ### Randomly select a theme
 `python termite-themes.py --random`
 
-## Switch to specific theme
+### Switch to specific theme
 `python termite-themes.py --switch-to <theme name from available lists>`
 
-## Help
+### Help
 `python termite-themes.py --help`
