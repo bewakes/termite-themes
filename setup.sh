@@ -42,10 +42,23 @@ path=/home/`whoami`/.local/bin
 echo Searching if "$path" exists in path
 if [[ -z `echo $PATH | grep $path` ]]; then
     echo Intended to install executable at $path but is not listed in PATH.
-    echo You might want to copy/link the 'termite-themes.py' into your desired path.
-else
-    ln -s `pwd`/termite-themes.py $path/termite-themes
-    echo Created a symlink named "termite-themes" at your path.
-    echo You can now just use 'termite-themes' instead of specifying full path to 'termite-themes.py' file.
+    echo Creating one..
+    mkdir -p $path
+    echo 'export PATH="$PATH:'$path'"' >> ~/.bashrc
+    echo 'export PATH="$PATH:'$path'"' >> ~/.zshrc
 fi
+echo
+
+ln -s `pwd`/termite-themes.py $path/termite-themes
+echo Created a symlink named "termite-themes" at your path.
+echo You can now just use 'termite-themes' instead of specifying full path to 'termite-themes.py' file.
+echo
+
+echo Setting up autocomplete. Note that this will work best in bash.
+echo installing argcomplete
+pip install --user argcomplete
+echo 'eval "$(register-python-argcomplete termite-themes)"  # termite-themes setup' >> ~/.bashrc
+echo
+echo Autocomplete done. Re open the terminal for effects to take place
+echo
 echo Setup Complete!!
